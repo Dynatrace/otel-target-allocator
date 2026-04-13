@@ -91,7 +91,7 @@ test: patch ## Run the target allocator unit tests
 	cd $(BUILD_DIR) && go test $(GOTEST_OPTS) ./cmd/otel-allocator/...
 
 .PHONY: smoke-test
-smoke-test: build ## Verify the binary is functional (runs --help, no k8s required)
+smoke-test: build ## Verify the binary is functional
 	@echo "==> Running smoke test"
 	$(BUILD_DIR)/bin/$(BINARY_NAME) --help
 	@echo "==> Smoke test passed"
