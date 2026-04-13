@@ -55,3 +55,7 @@ When `prometheus_cr.enabled` is set to `true`, the TA will watch for Prometheus 
 ## Upstream Reference
 
 This repository is based on the upstream Target Allocator from the [opentelemetry-operator](https://github.com/open-telemetry/opentelemetry-operator/tree/main/cmd/otel-allocator). Refer to the upstream docs for the full API specification and advanced configuration options.
+
+## Support
+
+This component is currently in development and not supported by Dynatrace.
