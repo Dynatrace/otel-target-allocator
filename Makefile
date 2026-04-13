@@ -47,7 +47,10 @@ $(CLONE_SENTINEL):
 .PHONY: patch
 patch: $(PATCH_SENTINEL) ## Apply all patches from patches/ onto the upstream source
 
-$(PATCH_SENTINEL): $(CLONE_SENTINEL)
+$(PATCH_SENTINEL): $(CLONE_SENTINEL) $(wildcard $(PATCHES_DIR)/*.patch)
+	@echo "==> Resetting upstream tree to clean state"
+	@git -C $(BUILD_DIR) checkout -- .
+	@git -C $(BUILD_DIR) clean -fd > /dev/null
 	@patches=$$(ls -1 $(PATCHES_DIR)/*.patch 2>/dev/null | sort); \
 	if [ -z "$$patches" ]; then \
 		echo "==> No patches to apply"; \
@@ -74,7 +77,7 @@ build: patch ## Build the target allocator binary
 image: build ## Build the container image using the upstream Dockerfile
 	@echo "==> Building container image $(IMAGE_REPO):$(IMAGE_TAG)"
 	docker buildx build \
-		--platform $(GOOS)/$(GOARCH) \
+		--platform linux/$(GOARCH) \
 		--build-arg TARGETARCH=$(GOARCH) \
 		-t $(IMAGE_REPO):$(IMAGE_TAG) \
 		-f $(BUILD_DIR)/cmd/otel-allocator/Dockerfile \
@@ -106,9 +109,14 @@ check-patches: $(CLONE_SENTINEL) ## Verify all patches apply cleanly (without mo
 	if [ -z "$$patches" ]; then \
 		echo "==> No patches to check"; \
 	else \
+		tmpdir=$$(mktemp -d) && \
+		git -C $(BUILD_DIR) worktree add --detach $$tmpdir HEAD 2>/dev/null; \
+		ok=0; \
 		for p in $$patches; do \
 			echo "==> Checking patch: $$p"; \
-			git -C $(BUILD_DIR) apply --check "$$(pwd)/$$p" || exit 1; \
+			git -C $$tmpdir apply --check "$$(pwd)/$$p" || { ok=1; break; }; \
 		done; \
-		echo "==> All patches apply cleanly"; \
+		git -C $(BUILD_DIR) worktree remove --force $$tmpdir; \
+		if [ $$ok -eq 0 ]; then echo "==> All patches apply cleanly"; fi; \
+		exit $$ok; \
 	fi
