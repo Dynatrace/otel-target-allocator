@@ -14,10 +14,9 @@ BUILD_DIR   := build
 PATCHES_DIR := patches
 
 # Binary output (for local go build only; goreleaser manages release builds)
+GOOS        := $(shell go env GOOS 2>/dev/null || echo linux)
+GOARCH      := $(shell go env GOARCH 2>/dev/null || echo amd64)
 BINARY_NAME := targetallocator_$(GOOS)_$(GOARCH)
-
-IMAGE_REPO  ?= target-allocator
-IMAGE_TAG   ?= $(VERSION)
 
 # Go test options
 GOTEST_OPTS ?= -count=1 -race
