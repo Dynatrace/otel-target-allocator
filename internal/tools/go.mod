@@ -1,6 +1,6 @@
 module github.com/Dynatrace/otel-target-allocator/internal/tools
 
-go 1.25.7
+go 1.26.0
 
 require github.com/sigstore/cosign/v3 v3.0.6
 
