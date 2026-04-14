@@ -13,11 +13,6 @@ VERSION := v0.1.0
 BUILD_DIR   := build
 PATCHES_DIR := patches
 
-# Binary output (for local go build only; goreleaser manages release builds)
-GOOS        := $(shell go env GOOS 2>/dev/null || echo linux)
-GOARCH      := $(shell go env GOARCH 2>/dev/null || echo amd64)
-BINARY_NAME := targetallocator_$(GOOS)_$(GOARCH)
-
 # Go test options
 GOTEST_OPTS ?= -count=1 -race
 
@@ -62,14 +57,10 @@ $(PATCH_SENTINEL): $(CLONE_SENTINEL) $(wildcard $(PATCHES_DIR)/*.patch)
 	@echo "==> Patching complete"
 
 .PHONY: build
-build: patch ## Build the target allocator binary
-	@echo "==> Building $(BINARY_NAME)"
-	cd $(BUILD_DIR) && \
-		CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
-			-trimpath \
-			-o bin/$(BINARY_NAME) \
-			./cmd/otel-allocator
-	@echo "==> Binary: $(BUILD_DIR)/bin/$(BINARY_NAME)"
+build: patch $(GORELEASER) ## Build the target allocator binary for the current platform
+	@echo "==> Building target-allocator"
+	$(GORELEASER) build --snapshot --clean --single-target --skip before --output $(BUILD_DIR)/bin/target-allocator
+	@echo "==> Binary: $(BUILD_DIR)/bin/target-allocator"
 
 .PHONY: image
 image: patch $(GORELEASER) ## Build container image(s) locally using goreleaser snapshot mode
@@ -82,6 +73,12 @@ image: patch $(GORELEASER) ## Build container image(s) locally using goreleaser 
 test: patch ## Run the target allocator unit tests
 	@echo "==> Running unit tests"
 	cd $(BUILD_DIR) && go test $(GOTEST_OPTS) ./cmd/otel-allocator/...
+
+.PHONY: smoke-test
+smoke-test: build ## Verify the binary is functional
+	@echo "==> Running smoke test"
+	$(BUILD_DIR)/bin/target-allocator --help
+	@echo "==> Smoke test passed"
 
 ##@ Maintenance
 
