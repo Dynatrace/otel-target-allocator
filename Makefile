@@ -120,3 +120,12 @@ check-patches: $(CLONE_SENTINEL) ## Verify all patches apply cleanly (without mo
 		if [ $$ok -eq 0 ]; then echo "==> All patches apply cleanly"; fi; \
 		exit $$ok; \
 	fi
+
+.PHONY: new-patch
+new-patch: ## Generate a numbered patch file from the last commit in build/ (rename to describe your change)
+	@existing_count=$$(find $(PATCHES_DIR) -maxdepth 1 -name "*.patch" | wc -l | xargs); \
+	next_seq=$$(printf "%04d" $$((existing_count + 1))); \
+	output="$(PATCHES_DIR)/$$next_seq-describe-your-change.patch"; \
+	git -C $(BUILD_DIR) format-patch HEAD~1 --stdout > "$$output"; \
+	echo "==> Generated $$output"; \
+	echo "    Rename it to describe your change, e.g. $$next_seq-fix-my-bug.patch"

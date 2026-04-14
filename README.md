@@ -73,6 +73,7 @@ The pinned upstream version is defined in the `Makefile` as `UPSTREAM_VERSION` a
 | `make smoke-test` | Verify the binary is executable |
 | `make image` | Build the container image using the upstream Dockerfile |
 | `make check-patches` | Dry-run all patches to verify they apply cleanly |
+| `make new-patch` | Generate a numbered patch file from the last commit in `build/` |
 | `make clean` | Remove the `build/` working directory |
 
 ### Adding a downstream patch
@@ -82,10 +83,11 @@ The pinned upstream version is defined in the `Makefile` as `UPSTREAM_VERSION` a
    make setup patch
    ```
 2. Make your change inside `build/` and stage it with `git add`.
-3. Generate a patch file with a descriptive, ordered name:
+3. Generate a numbered patch file from your last commit:
    ```sh
-   git -C build format-patch HEAD~1 --stdout > patches/0001-describe-your-change.patch
+   make new-patch
    ```
+   Rename the generated file to describe your change.
 4. Commit the `.patch` file — **not** the modified `build/` directory (it is gitignored).
 
 ### Updating the upstream version
