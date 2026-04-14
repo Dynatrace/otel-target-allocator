@@ -28,24 +28,11 @@ jobs:
           check-latest: true
           cache: false
 
-      - name: Cache upstream source
-        id: cache-upstream
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        with:
-          path: build
-          key: upstream-${{ runner.os }}-${{ hashFiles('Makefile', 'patches/**') }}
-
       - name: Fetch upstream source
-        if: steps.cache-upstream.outputs.cache-hit != 'true'
         run: make setup
 
       - name: Apply patches
-        if: steps.cache-upstream.outputs.cache-hit != 'true'
         run: make patch
-
-      - name: Restore patch sentinel after cache hit
-        if: steps.cache-upstream.outputs.cache-hit == 'true'
-        run: touch build/.patched
 
       - name: Run Snyk
         # Scans the patched go.mod so any vulnerability fixes applied via patches are reflected.
