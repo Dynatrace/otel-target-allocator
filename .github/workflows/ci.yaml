@@ -28,6 +28,15 @@ jobs:
           check-latest: true
           cache: false
 
+      - name: Cache tools
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: .tools
+          key: tools-${{ runner.os }}-${{ hashFiles('Makefile.Common') }}
+
+      - name: Install tools
+        run: make install-tools
+
       - name: Fetch upstream source
         run: make setup
 
