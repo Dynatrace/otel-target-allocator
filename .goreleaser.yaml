@@ -1,0 +1,129 @@
+version: 2
+partial:
+  by: target
+before:
+  hooks:
+    - make setup patch
+
+builds:
+  - id: target-allocator
+    binary: target-allocator
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s
+      - -w
+    flags:
+      - -trimpath
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    dir: build
+    main: ./cmd/otel-allocator
+
+sboms:
+  - cmd: cyclonedx-gomod
+    args: ["app", "-licenses", "-assert-licenses", "-std", "-json", "-main", "./", "-output", "$document", "../build/"]
+    artifacts: binary
+    env:
+      - GOARCH={{ .Arch }}
+      - GOOS={{ .Os }}
+    documents:
+      - >-
+        {{ .ProjectName }}_
+        {{- .Version }}_
+        {{- title .Os }}_
+        {{- else }}{{ .Arch }}{{ end }}-sbom.cdx.json
+
+archives:
+  - formats: ['tar.gz']
+
+dockers:
+  - goos: linux
+    goarch: amd64
+    image_templates:
+      - ghcr.io/dynatrace/otel-target-allocator/target-allocator:{{ .Version }}-amd64
+      - ghcr.io/dynatrace/otel-target-allocator/target-allocator:latest-amd64
+      - public.ecr.aws/dynatrace/target-allocator:{{ .Version }}-amd64
+      - public.ecr.aws/dynatrace/target-allocator:latest-amd64
+      - dynatrace/target-allocator:{{ .Version }}-amd64
+      - dynatrace/target-allocator:latest-amd64
+    build_flag_templates:
+      - --pull
+      - --platform=linux/amd64
+      - --label=org.opencontainers.image.created={{.Date}}
+      - --label=org.opencontainers.image.name={{.ProjectName}}
+      - --label=org.opencontainers.image.revision={{.FullCommit}}
+      - --label=org.opencontainers.image.version={{.Version}}
+      - --label=org.opencontainers.image.source={{.GitURL}}
+      - --label=org.opencontainers.image.licenses=Apache-2.0
+    use: buildx
+  - goos: linux
+    goarch: arm64
+    image_templates:
+      - ghcr.io/dynatrace/otel-target-allocator/target-allocator:{{ .Version }}-arm64
+      - ghcr.io/dynatrace/otel-target-allocator/target-allocator:latest-arm64
+      - public.ecr.aws/dynatrace/target-allocator:{{ .Version }}-arm64
+      - public.ecr.aws/dynatrace/target-allocator:latest-arm64
+      - dynatrace/target-allocator:{{ .Version }}-arm64
+      - dynatrace/target-allocator:latest-arm64
+    build_flag_templates:
+      - --pull
+      - --platform=linux/arm64
+      - --label=org.opencontainers.image.created={{.Date}}
+      - --label=org.opencontainers.image.name={{.ProjectName}}
+      - --label=org.opencontainers.image.revision={{.FullCommit}}
+      - --label=org.opencontainers.image.version={{.Version}}
+      - --label=org.opencontainers.image.source={{.GitURL}}
+      - --label=org.opencontainers.image.licenses=Apache-2.0
+    use: buildx
+
+docker_manifests:
+  - name_template: ghcr.io/dynatrace/otel-target-allocator/target-allocator:{{ .Version }}
+    image_templates:
+      - ghcr.io/dynatrace/otel-target-allocator/target-allocator:{{ .Version }}-amd64
+      - ghcr.io/dynatrace/otel-target-allocator/target-allocator:{{ .Version }}-arm64
+  - name_template: ghcr.io/dynatrace/otel-target-allocator/target-allocator:latest
+    image_templates:
+      - ghcr.io/dynatrace/otel-target-allocator/target-allocator:latest-amd64
+      - ghcr.io/dynatrace/otel-target-allocator/target-allocator:latest-arm64
+  - name_template: public.ecr.aws/dynatrace/target-allocator:{{ .Version }}
+    image_templates:
+      - public.ecr.aws/dynatrace/target-allocator:{{ .Version }}-amd64
+      - public.ecr.aws/dynatrace/target-allocator:{{ .Version }}-arm64
+  - name_template: public.ecr.aws/dynatrace/target-allocator:latest
+    image_templates:
+      - public.ecr.aws/dynatrace/target-allocator:latest-amd64
+      - public.ecr.aws/dynatrace/target-allocator:latest-arm64
+  - name_template: dynatrace/target-allocator:{{ .Version }}
+    image_templates:
+      - dynatrace/target-allocator:{{ .Version }}-amd64
+      - dynatrace/target-allocator:{{ .Version }}-arm64
+  - name_template: dynatrace/target-allocator:latest
+    image_templates:
+      - dynatrace/target-allocator:latest-amd64
+      - dynatrace/target-allocator:latest-arm64
+
+checksum:
+  name_template: "checksums.txt"
+
+docker_digest:
+  name_template: "digests.txt"
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+release:
+  draft: true
+
+# yaml-language-server: $schema=https://goreleaser.com/static/schema-pro.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj

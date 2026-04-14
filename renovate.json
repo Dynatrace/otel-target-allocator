@@ -23,6 +23,19 @@
     {
       "matchPackageNames": ["open-telemetry/opentelemetry-operator"],
       "groupName": "upstream opentelemetry-operator"
+    },
+    {
+      "matchPackageNames": [
+        "goreleaser-pro",
+        "goreleaser/goreleaser-pro",
+        "github.com/goreleaser/goreleaser-pro/v2",
+        "github.com/goreleaser/goreleaser-pro"
+      ],
+      "groupName": "GoReleaser Pro"
+    },
+    {
+      "matchPackageNames": ["github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod"],
+      "groupName": "cyclonedx-gomod"
     }
   ],
   "customManagers": [

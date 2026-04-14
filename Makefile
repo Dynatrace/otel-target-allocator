@@ -1,3 +1,5 @@
+include ./Makefile.Common
+
 # Upstream repository
 UPSTREAM_REPO    := https://github.com/open-telemetry/opentelemetry-operator
 
@@ -11,12 +13,10 @@ VERSION := v0.1.0
 BUILD_DIR   := build
 PATCHES_DIR := patches
 
-# Binary output
-GOOS        := $(shell go env GOOS 2>/dev/null || echo linux)
-GOARCH      := $(shell go env GOARCH 2>/dev/null || echo amd64)
+# Binary output (for local go build only; goreleaser manages release builds)
 BINARY_NAME := targetallocator_$(GOOS)_$(GOARCH)
 
-# Docker image
+# Docker image (used by goreleaser; override for local snapshot builds)
 IMAGE_REPO  ?= target-allocator
 IMAGE_TAG   ?= $(VERSION)
 
@@ -74,14 +74,9 @@ build: patch ## Build the target allocator binary
 	@echo "==> Binary: $(BUILD_DIR)/bin/$(BINARY_NAME)"
 
 .PHONY: image
-image: build ## Build the container image using the upstream Dockerfile
-	@echo "==> Building container image $(IMAGE_REPO):$(IMAGE_TAG)"
-	docker buildx build \
-		--platform linux/$(GOARCH) \
-		--build-arg TARGETARCH=$(GOARCH) \
-		-t $(IMAGE_REPO):$(IMAGE_TAG) \
-		-f $(BUILD_DIR)/cmd/otel-allocator/Dockerfile \
-		$(BUILD_DIR)
+image: patch $(GORELEASER) ## Build container image(s) locally using goreleaser snapshot mode
+	@echo "==> Building container image (snapshot)"
+	$(GORELEASER) release --snapshot --clean --skip archive,sbom --fail-fast
 
 ##@ Testing
 
