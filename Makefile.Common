@@ -8,36 +8,33 @@ GOARCH := $(shell go env GOARCH)
 OS     := $(shell uname)
 ARCH   := $(shell uname -m)
 
-TOOLS_MOD_DIR    := $(SRC_ROOT)/internal/tools
-TOOLS_MOD_REGEX  := "\s+_\s+\".*\""
-TOOLS_PKG_NAMES  := $(shell grep -E $(TOOLS_MOD_REGEX) < $(TOOLS_MOD_DIR)/tools.go | tr -d " _\"")
-TOOLS_BIN_DIR    := $(SRC_ROOT)/.tools
-TOOLS_BIN_NAMES  := $(addprefix $(TOOLS_BIN_DIR)/, $(notdir $(TOOLS_PKG_NAMES)))
+TOOLS_BIN_DIR := $(SRC_ROOT)/.tools
 
 GORELEASER := $(TOOLS_BIN_DIR)/goreleaser
 COSIGN     := $(TOOLS_BIN_DIR)/cosign
 
 # renovate: datasource=github-releases depName=goreleaser/goreleaser-pro
 GORELEASER_PRO_VERSION ?= v2.15.2
-
-.PHONY: moddownload
-moddownload:
-	$(GOCMD) mod download
-
-.PHONY: modtidy
-modtidy:
-	$(GOCMD) mod tidy
+# renovate: datasource=github-releases depName=sigstore/cosign
+COSIGN_VERSION ?= v3.0.6
 
 .PHONY: clean-tools
 clean-tools:
 	rm -rf $(TOOLS_BIN_DIR)
 
-$(TOOLS_BIN_NAMES): $(TOOLS_MOD_DIR)/go.mod | $(TOOLS_BIN_DIR)
-	cd $(TOOLS_MOD_DIR) && $(GOCMD) build -trimpath -o $(abspath $@) \
-		$(filter %/$(notdir $@),$(TOOLS_PKG_NAMES))
+# cosign is installed via the cosign-installer GitHub Action in CI.
+# For local development, it falls back to go install with the pinned version.
+$(COSIGN): | $(TOOLS_BIN_DIR)
+	@if command -v cosign > /dev/null 2>&1; then \
+		echo "cosign found on PATH, linking to $(COSIGN)..."; \
+		ln -sf $$(command -v cosign) $(COSIGN); \
+	else \
+		echo "cosign not found on PATH, installing via go install..."; \
+		GOBIN=$(TOOLS_BIN_DIR) $(GOCMD) install github.com/sigstore/cosign/v3/cmd/cosign@$(COSIGN_VERSION); \
+	fi
 
 .PHONY: install-tools
-install-tools: $(TOOLS_BIN_DIR) $(TOOLS_BIN_NAMES) install-goreleaser-pro
+install-tools: $(TOOLS_BIN_DIR) $(COSIGN) install-goreleaser-pro
 
 $(TOOLS_BIN_DIR):
 	mkdir -p $@
