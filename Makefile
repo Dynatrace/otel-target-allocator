@@ -59,6 +59,7 @@ $(PATCH_SENTINEL): $(CLONE_SENTINEL) $(wildcard $(PATCHES_DIR)/*.patch)
 .PHONY: build
 build: patch $(GORELEASER) ## Build the target allocator binary for the current platform
 	@echo "==> Building target-allocator"
+	@mkdir -p $(BUILD_DIR)/bin
 	$(GORELEASER) build --snapshot --clean --single-target --skip before --output $(BUILD_DIR)/bin/target-allocator
 	@echo "==> Binary: $(BUILD_DIR)/bin/target-allocator"
 
