@@ -62,9 +62,8 @@ build: patch $(GORELEASER) ## Build the target allocator binary for the current 
 	$(GORELEASER) build --snapshot --clean --single-target --skip before --output $(BUILD_DIR)/bin/target-allocator
 	@echo "==> Binary: $(BUILD_DIR)/bin/target-allocator"
 
-.PHONY: image
-image: patch $(GORELEASER) ## Build container image(s) locally using goreleaser snapshot mode
-	@echo "==> Building container image (snapshot)"
+.PHONY: snapshot
+snapshot: patch $(GORELEASER) ## Build all binaries and container images locally (full snapshot)
 	$(GORELEASER) release --snapshot --clean --skip archive,sbom --fail-fast
 
 ##@ Testing
