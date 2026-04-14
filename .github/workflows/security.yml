@@ -1,0 +1,55 @@
+name: Security check
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  # renovate: datasource=golang-version depName=go
+  GO_VERSION: "1.25.3"
+
+jobs:
+  snyk:
+    name: Check for security vulnerabilities
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+          cache: false
+
+      - name: Fetch upstream source
+        run: make setup
+
+      - name: Apply patches
+        run: make patch
+
+      - name: Run Snyk
+        # Scans the patched go.mod so any vulnerability fixes applied via patches are reflected.
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk monitor --file=build/go.mod --project-name=otel-target-allocator
+
+  notify-slack:
+    runs-on: ubuntu-24.04
+    needs: [snyk]
+    if: failure()
+    steps:
+      - name: Slack Notification - security vulnerabilities
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_TITLE: "OTel Target Allocator - Security check Failure"
+          SLACK_COLOR: "failure"
+          SLACK_USERNAME: "GitHub Actions Notifier"
+          SLACK_ICON: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/github.png"

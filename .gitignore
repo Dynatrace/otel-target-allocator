@@ -62,3 +62,6 @@ go.work.sum
 # env file
 .env
 
+# Build working directory (cloned upstream source + applied patches)
+build/
+

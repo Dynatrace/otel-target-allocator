@@ -1,6 +1,40 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:best-practices",
+    "schedule:nonOfficeHours",
+    "customManagers:githubActionsVersions"
+  ],
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 25,
+  "minimumReleaseAge": "3 days",
+  "minimumReleaseAgeBehaviour": "timestamp-optional",
+  "timezone": "Europe/Vienna",
+  "rebaseWhen": "behind-base-branch",
+  "packageRules": [
+    {
+      "matchDatasources": ["golang-version"],
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions deps"
+    },
+    {
+      "matchPackageNames": ["open-telemetry/opentelemetry-operator"],
+      "groupName": "upstream opentelemetry-operator"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|\\/)Makefile$",
+        "(^|\\/).*\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.+?) depName=(?<depName>.+?)\\s.*(:|=|\\?=|:=|\\+=) ?\\\"?(?<currentValue>.+?)?\\\"?\\s"
+      ]
+    }
   ]
 }
