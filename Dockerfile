@@ -9,6 +9,6 @@ USER 65532:65532
 WORKDIR /
 
 COPY --from=certificates /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY target-allocator ./main
+COPY target-allocator ./target-allocator
 
-ENTRYPOINT ["./main"]
+ENTRYPOINT ["./target-allocator"]
