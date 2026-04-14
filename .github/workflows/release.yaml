@@ -61,24 +61,11 @@ jobs:
       - name: Touch tools
         run: mkdir -p .tools
 
-      - name: Cache upstream source
-        id: cache-upstream
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        with:
-          path: build
-          key: upstream-${{ runner.os }}-${{ hashFiles('Makefile', 'patches/**') }}
-
       - name: Fetch upstream source
-        if: steps.cache-upstream.outputs.cache-hit != 'true'
         run: make setup
 
       - name: Apply patches
-        if: steps.cache-upstream.outputs.cache-hit != 'true'
         run: make patch
-
-      - name: Restore patch sentinel after cache hit
-        if: steps.cache-upstream.outputs.cache-hit == 'true'
-        run: touch build/.patched
 
       - name: Login to GitHub Package Registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
@@ -103,18 +90,6 @@ jobs:
         uses: aws-actions/amazon-ecr-login@f2e9fc6c2b355c1890b65e6f6f0e2ac3e6e22f78 # v2.1.2
         with:
           registry-type: public
-
-      - name: Free up disk space
-        run: |
-          df -h
-          go clean -modcache -cache
-          rm -rf /opt/hostedtoolcache/CodeQL
-          rm -rf /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk
-          rm -rf /opt/hostedtoolcache/PyPy
-          rm -rf /opt/hostedtoolcache/Ruby
-          rm -rf /opt/hostedtoolcache/node
-          sudo rm -rf $ANDROID_HOME
-          df -h
 
       - name: Create release for version tag
         uses: goreleaser/goreleaser-action@ec59f474b9834571250b370d4735c50f8e2d1e29 # v7.0.0
