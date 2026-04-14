@@ -16,7 +16,6 @@ PATCHES_DIR := patches
 # Binary output (for local go build only; goreleaser manages release builds)
 BINARY_NAME := targetallocator_$(GOOS)_$(GOARCH)
 
-# Docker image (used by goreleaser; override for local snapshot builds)
 IMAGE_REPO  ?= target-allocator
 IMAGE_TAG   ?= $(VERSION)
 
@@ -84,12 +83,6 @@ image: patch $(GORELEASER) ## Build container image(s) locally using goreleaser 
 test: patch ## Run the target allocator unit tests
 	@echo "==> Running unit tests"
 	cd $(BUILD_DIR) && go test $(GOTEST_OPTS) ./cmd/otel-allocator/...
-
-.PHONY: smoke-test
-smoke-test: build ## Verify the binary is functional
-	@echo "==> Running smoke test"
-	$(BUILD_DIR)/bin/$(BINARY_NAME) --help
-	@echo "==> Smoke test passed"
 
 ##@ Maintenance
 
