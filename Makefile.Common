@@ -34,7 +34,7 @@ $(COSIGN): | $(TOOLS_BIN_DIR)
 	fi
 
 .PHONY: install-tools
-install-tools: $(TOOLS_BIN_DIR) $(COSIGN) install-goreleaser-pro
+install-tools: $(COSIGN) install-goreleaser-pro
 
 $(TOOLS_BIN_DIR):
 	mkdir -p $@
