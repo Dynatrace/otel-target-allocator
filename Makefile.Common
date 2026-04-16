@@ -34,7 +34,7 @@ $(COSIGN): | $(TOOLS_BIN_DIR)
 	fi
 
 .PHONY: install-tools
-install-tools: $(COSIGN) install-goreleaser-pro
+install-tools: $(COSIGN) $(GORELEASER)
 
 $(TOOLS_BIN_DIR):
 	mkdir -p $@
@@ -55,8 +55,7 @@ CHECKSUM_NAME := ./checksums.txt
 URL           := https://github.com/goreleaser/goreleaser-pro/releases/download/$(GORELEASER_PRO_VERSION)/$(ARCHIVE_NAME)
 CHECKSUM_URL  := https://github.com/goreleaser/goreleaser-pro/releases/download/$(GORELEASER_PRO_VERSION)/checksums.txt
 
-.PHONY: install-goreleaser-pro
-install-goreleaser-pro: $(COSIGN)
+$(GORELEASER): $(COSIGN) | $(TOOLS_BIN_DIR)
 	@echo 'Installing GoReleaser Pro...'; \
 	GORELEASER_ACTUAL_VERSION=$$($(GORELEASER) --version 2>&1 | grep '^GitVersion:' | awk '{print $$2}'); \
 	if [ "v$$GORELEASER_ACTUAL_VERSION" = "$(GORELEASER_PRO_VERSION)" ]; then \
@@ -85,3 +84,6 @@ install-goreleaser-pro: $(COSIGN)
 		mv goreleaser $(TOOLS_BIN_DIR); \
 		echo "GoReleaser Pro installed successfully!"; \
 	fi
+
+.PHONY: install-goreleaser-pro
+install-goreleaser-pro: $(GORELEASER)
