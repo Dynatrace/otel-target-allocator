@@ -41,9 +41,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "(^|\\/)Makefile$",
-        "(^|\\/).*\\.ya?ml$"
+      "managerFilePatterns": [
+        "/(^|\\/)Makefile$/",
+        "/(^|\\/).*\\.ya?ml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.+?) depName=(?<depName>.+?)\\s.*(:|=|\\?=|:=|\\+=) ?\\\"?(?<currentValue>.+?)?\\\"?\\s"
