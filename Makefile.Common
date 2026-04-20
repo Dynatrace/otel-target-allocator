@@ -1,0 +1,89 @@
+GOCMD ?= go
+
+# SRC_ROOT is the top of the source tree.
+SRC_ROOT := $(shell git rev-parse --show-toplevel)
+
+GOOS   := $(shell go env GOOS)
+GOARCH := $(shell go env GOARCH)
+OS     := $(shell uname)
+ARCH   := $(shell uname -m)
+
+TOOLS_BIN_DIR := $(SRC_ROOT)/.tools
+
+GORELEASER := $(TOOLS_BIN_DIR)/goreleaser
+COSIGN     := $(TOOLS_BIN_DIR)/cosign
+
+# renovate: datasource=github-releases depName=goreleaser/goreleaser-pro
+GORELEASER_PRO_VERSION ?= v2.15.2
+# renovate: datasource=github-releases depName=sigstore/cosign
+COSIGN_VERSION ?= v3.0.6
+
+.PHONY: clean-tools
+clean-tools:
+	rm -rf $(TOOLS_BIN_DIR)
+
+# cosign is installed via the cosign-installer GitHub Action in CI.
+# For local development, it falls back to go install with the pinned version.
+$(COSIGN): | $(TOOLS_BIN_DIR)
+	@if command -v cosign > /dev/null 2>&1; then \
+		echo "cosign found on PATH, linking to $(COSIGN)..."; \
+		ln -sf $$(command -v cosign) $(COSIGN); \
+	else \
+		echo "cosign not found on PATH, installing via go install..."; \
+		GOBIN=$(TOOLS_BIN_DIR) $(GOCMD) install github.com/sigstore/cosign/v3/cmd/cosign@$(COSIGN_VERSION); \
+	fi
+
+.PHONY: install-tools
+install-tools: $(COSIGN) $(GORELEASER)
+
+$(TOOLS_BIN_DIR):
+	mkdir -p $@
+
+ifeq ($(ARCH), amd64)
+	ARCH=x86_64
+else ifeq ($(ARCH), aarch64)
+	ARCH=arm64
+endif
+
+EXT := tar.gz
+ifeq ($(OS), windows)
+	EXT=zip
+endif
+
+ARCHIVE_NAME  := goreleaser-pro_$(OS)_$(ARCH).$(EXT)
+CHECKSUM_NAME := ./checksums.txt
+URL           := https://github.com/goreleaser/goreleaser-pro/releases/download/$(GORELEASER_PRO_VERSION)/$(ARCHIVE_NAME)
+CHECKSUM_URL  := https://github.com/goreleaser/goreleaser-pro/releases/download/$(GORELEASER_PRO_VERSION)/checksums.txt
+
+$(GORELEASER): $(COSIGN) | $(TOOLS_BIN_DIR)
+	@echo 'Installing GoReleaser Pro...'; \
+	GORELEASER_ACTUAL_VERSION=$$($(GORELEASER) --version 2>&1 | grep '^GitVersion:' | awk '{print $$2}'); \
+	if [ "v$$GORELEASER_ACTUAL_VERSION" = "$(GORELEASER_PRO_VERSION)" ]; then \
+		echo "GoReleaser Pro is already installed with the correct version, moving on..."; \
+	else \
+		echo "Downloading $(ARCHIVE_NAME) from $(URL)..."; \
+		curl -sL $(URL) -o $(ARCHIVE_NAME); \
+		\
+		echo "Downloading checksum and bundle to verify downloaded binary..."; \
+		curl -sL $(CHECKSUM_URL) -o $(CHECKSUM_NAME); \
+		curl -sL 'https://github.com/goreleaser/goreleaser-pro/releases/download/$(GORELEASER_PRO_VERSION)/checksums.txt.sigstore.json' -o $(CHECKSUM_NAME).sigstore.json; \
+		\
+		echo "Verifying checksum signature..."; \
+		$(COSIGN) verify-blob $(CHECKSUM_NAME) \
+			--certificate-identity 'https://github.com/goreleaser/goreleaser-pro-internal/.github/workflows/release-pro.yml@refs/tags/$(GORELEASER_PRO_VERSION)' \
+			--certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+			--bundle $(CHECKSUM_NAME).sigstore.json; \
+		\
+		echo "Verifying checksum..."; \
+		sha256sum --ignore-missing --quiet -c $(CHECKSUM_NAME); \
+		echo "Checksum verified successfully."; \
+		rm $(CHECKSUM_NAME) $(CHECKSUM_NAME).sigstore.json; \
+		\
+		if [ "$(EXT)" = "zip" ]; then unzip -o goreleaser "$(ARCHIVE_NAME)"; else tar -xzf "$(ARCHIVE_NAME)" goreleaser; fi; \
+		chmod +x goreleaser; \
+		mv goreleaser $(TOOLS_BIN_DIR); \
+		echo "GoReleaser Pro installed successfully!"; \
+	fi
+
+.PHONY: install-goreleaser-pro
+install-goreleaser-pro: $(GORELEASER)

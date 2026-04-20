@@ -1,3 +1,5 @@
+include ./Makefile.Common
+
 # Upstream repository
 UPSTREAM_REPO    := https://github.com/open-telemetry/opentelemetry-operator
 
@@ -10,15 +12,6 @@ VERSION := v0.1.0
 # Build directories
 BUILD_DIR   := build
 PATCHES_DIR := patches
-
-# Binary output
-GOOS        := $(shell go env GOOS 2>/dev/null || echo linux)
-GOARCH      := $(shell go env GOARCH 2>/dev/null || echo amd64)
-BINARY_NAME := targetallocator_$(GOOS)_$(GOARCH)
-
-# Docker image
-IMAGE_REPO  ?= target-allocator
-IMAGE_TAG   ?= $(VERSION)
 
 # Go test options
 GOTEST_OPTS ?= -count=1 -race
@@ -64,24 +57,15 @@ $(PATCH_SENTINEL): $(CLONE_SENTINEL) $(wildcard $(PATCHES_DIR)/*.patch)
 	@echo "==> Patching complete"
 
 .PHONY: build
-build: patch ## Build the target allocator binary
-	@echo "==> Building $(BINARY_NAME)"
-	cd $(BUILD_DIR) && \
-		CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build \
-			-trimpath \
-			-o bin/$(BINARY_NAME) \
-			./cmd/otel-allocator
-	@echo "==> Binary: $(BUILD_DIR)/bin/$(BINARY_NAME)"
+build: patch $(GORELEASER) ## Build the target allocator binary for the current platform
+	@echo "==> Building target-allocator"
+	@mkdir -p $(BUILD_DIR)/bin
+	$(GORELEASER) build --snapshot --clean --single-target --skip before --output $(BUILD_DIR)/bin/target-allocator
+	@echo "==> Binary: $(BUILD_DIR)/bin/target-allocator"
 
-.PHONY: image
-image: build ## Build the container image using the upstream Dockerfile
-	@echo "==> Building container image $(IMAGE_REPO):$(IMAGE_TAG)"
-	docker buildx build \
-		--platform linux/$(GOARCH) \
-		--build-arg TARGETARCH=$(GOARCH) \
-		-t $(IMAGE_REPO):$(IMAGE_TAG) \
-		-f $(BUILD_DIR)/cmd/otel-allocator/Dockerfile \
-		$(BUILD_DIR)
+.PHONY: snapshot
+snapshot: patch $(GORELEASER) ## Build all binaries and container images locally (full snapshot)
+	$(GORELEASER) release --snapshot --clean --skip archive,sbom --fail-fast
 
 ##@ Testing
 
@@ -93,7 +77,7 @@ test: patch ## Run the target allocator unit tests
 .PHONY: smoke-test
 smoke-test: build ## Verify the binary is functional
 	@echo "==> Running smoke test"
-	$(BUILD_DIR)/bin/$(BINARY_NAME) --help
+	$(BUILD_DIR)/bin/target-allocator --help
 	@echo "==> Smoke test passed"
 
 ##@ Maintenance

@@ -68,10 +68,10 @@ The pinned upstream version is defined in the `Makefile` as `UPSTREAM_VERSION` a
 |---|---|
 | `make setup` | Clone the upstream repo at `UPSTREAM_VERSION` into `build/` |
 | `make patch` | Apply all `patches/*.patch` files in order |
-| `make build` | Build the `targetallocator` binary into `build/bin/` |
+| `make build` | Build the `target-allocator` binary for the current platform |
 | `make test` | Run the upstream unit tests with local patches applied |
-| `make smoke-test` | Verify the binary is executable |
-| `make image` | Build the container image using the upstream Dockerfile |
+| `make smoke-test` | Verify the binary is functional |
+| `make snapshot` | Build all binaries and container images locally (full snapshot) |
 | `make check-patches` | Dry-run all patches to verify they apply cleanly |
 | `make new-patch` | Generate a numbered patch file from the last commit in `build/` |
 | `make clean` | Remove the `build/` working directory |

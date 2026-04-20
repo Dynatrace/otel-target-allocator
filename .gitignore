@@ -65,3 +65,9 @@ go.work.sum
 # Build working directory (cloned upstream source + applied patches)
 build/
 
+# GoReleaser output directory
+dist/
+
+# Local tools installed by make install-tools
+.tools/
+
