@@ -45,8 +45,8 @@ dockers:
       - ghcr.io/dynatrace/otel-target-allocator/target-allocator:latest-amd64
 #      - public.ecr.aws/dynatrace/target-allocator:{{ .Version }}-amd64
 #      - public.ecr.aws/dynatrace/target-allocator:latest-amd64
-      - dynatrace/target-allocator:{{ .Version }}-amd64
-      - dynatrace/target-allocator:latest-amd64
+      - dynatrace/otel-target-allocator:{{ .Version }}-amd64
+      - dynatrace/otel-target-allocator:latest-amd64
     build_flag_templates:
       - --pull
       - --platform=linux/amd64
@@ -64,8 +64,8 @@ dockers:
       - ghcr.io/dynatrace/otel-target-allocator/target-allocator:latest-arm64
 #      - public.ecr.aws/dynatrace/target-allocator:{{ .Version }}-arm64
 #      - public.ecr.aws/dynatrace/target-allocator:latest-arm64
-      - dynatrace/target-allocator:{{ .Version }}-arm64
-      - dynatrace/target-allocator:latest-arm64
+      - dynatrace/otel-target-allocator:{{ .Version }}-arm64
+      - dynatrace/otel-target-allocator:latest-arm64
     build_flag_templates:
       - --pull
       - --platform=linux/arm64
@@ -96,12 +96,12 @@ docker_manifests:
 #      - public.ecr.aws/dynatrace/target-allocator:latest-arm64
   - name_template: dynatrace/target-allocator:{{ .Version }}
     image_templates:
-      - dynatrace/target-allocator:{{ .Version }}-amd64
-      - dynatrace/target-allocator:{{ .Version }}-arm64
+      - dynatrace/otel-target-allocator:{{ .Version }}-amd64
+      - dynatrace/otel-target-allocator:{{ .Version }}-arm64
   - name_template: dynatrace/target-allocator:latest
     image_templates:
-      - dynatrace/target-allocator:latest-amd64
-      - dynatrace/target-allocator:latest-arm64
+      - dynatrace/otel-target-allocator:latest-amd64
+      - dynatrace/otel-target-allocator:latest-arm64
 
 checksum:
   name_template: "checksums.txt"
