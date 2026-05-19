@@ -56,7 +56,7 @@ jobs:
         run: go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@${{ env.CYCLONEDX_VERSION }}
 
       - name: Cache tools
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: .tools
           key: release-tools-${{ runner.os }}-${{ hashFiles('Makefile.Common') }}
@@ -81,18 +81,18 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+        uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-1
 
       - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@f2e9fc6c2b355c1890b65e6f6f0e2ac3e6e22f78 # v2.1.2
+        uses: aws-actions/amazon-ecr-login@fa648b43de3d4d023bcb3f89ed6940096949c419 # v2.1.5
         with:
           registry-type: public
 
       - name: Create release for version tag
-        uses: goreleaser/goreleaser-action@ec59f474b9834571250b370d4735c50f8e2d1e29 # v7.0.0
+        uses: goreleaser/goreleaser-action@1a80836c5c9d9e5755a25cb59ec6f45a3b5f41a8 # v7.2.1
         with:
           distribution: goreleaser-pro
           version: ${{ env.GORELEASER_PRO_VERSION }}
