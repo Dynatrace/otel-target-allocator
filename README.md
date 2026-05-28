@@ -23,6 +23,36 @@ OTel Collectors   -->  scrape assigned Metrics targets
 
 The Prometheus Receiver config in each Collector is overridden with an `http_sd_config` pointing to the TA, which handles the load-balancing and sharding of targets.
 
+## Installation
+
+### Container images
+
+Container images for the Dynatrace OTel Target Allocator are available in:
+
+- [GitHub Container Registry (GHCR)](https://github.com/Dynatrace/otel-target-allocator/pkgs/container/otel-target-allocator%2Ftarget-allocator)
+- [Amazon Elastic Container Registry (Amazon ECR)](https://gallery.ecr.aws/dynatrace/otel-target-allocator)
+- [Docker Hub Container Registry](https://hub.docker.com/r/dynatrace/otel-target-allocator)
+
+### Verifying image signatures
+
+All container images are signed using [cosign] keyless signing ([Sigstore]). No long-lived signing keys are used;
+signatures are bound to the GitHub Actions release workflow via OIDC.
+
+To verify an image, install [cosign] and run:
+
+```sh
+cosign verify \
+  --certificate-identity-regexp "https://github.com/Dynatrace/otel-target-allocator/.github/workflows/release.yaml@refs/tags/.*" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+  ghcr.io/dynatrace/otel-target-allocator/target-allocator:<tag>
+```
+
+Replace `<tag>` with the image tag you want to verify (e.g. `0.1.0`).
+The same command works for ECR (`public.ecr.aws/dynatrace/otel-target-allocator:<tag>`) and Docker Hub (`dynatrace/otel-target-allocator:<tag>`).
+
+[cosign]: https://docs.sigstore.dev/cosign/system_config/installation/
+[Sigstore]: https://www.sigstore.dev/
+
 ## Allocation Strategies
 
 | Strategy | Description |
