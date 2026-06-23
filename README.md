@@ -130,3 +130,7 @@ The pinned upstream version is defined in the `Makefile` as `UPSTREAM_VERSION` a
 ## Support
 
 This component is currently in development and not supported by Dynatrace.
+
+## Development Docs
+
+- [Release process](docs/releasing.md)
