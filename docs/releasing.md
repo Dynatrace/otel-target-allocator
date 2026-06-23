@@ -8,7 +8,7 @@ Before cutting a release tag, open a PR to verify and update the following:
 
 1. Ensure the downstream version in `Makefile` is set to the target release version:
    - `VERSION := vX.Y.Z`
-2. Ensure the pinned upstream version is correct (if this release includes an upstream update):
+2. Ensure the pinned upstream version is correct (if this release includes an upstream update, Renovate should have updated the version here already):
    - `UPSTREAM_VERSION := vX.Y.Z`
 3. Ensure local patches still apply cleanly on top of the pinned upstream:
    ```sh
