@@ -7,7 +7,7 @@ UPSTREAM_REPO    := https://github.com/open-telemetry/opentelemetry-operator
 UPSTREAM_VERSION := v0.153.0
 
 # Downstream version — bump this manually when cutting a release
-VERSION := v0.1.0
+VERSION := v0.2.0
 
 # Build directories
 BUILD_DIR   := build
