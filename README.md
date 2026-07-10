@@ -1,4 +1,4 @@
-# Target Allocator for OpenTelemetry Collectors
+# Prometheus Target Allocator for OpenTelemetry Collectors
 
 A Dynatrace-provided distribution of the [OpenTelemetry Operator Target Allocator](https://github.com/open-telemetry/opentelemetry-operator/tree/main/cmd/otel-allocator).
 
