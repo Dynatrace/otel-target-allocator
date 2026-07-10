@@ -1,10 +1,11 @@
 # Target Allocator for OpenTelemetry Collectors
 
-A pseudo fork of the [OpenTelemetry Operator Target Allocator](https://github.com/open-telemetry/opentelemetry-operator/tree/main/cmd/otel-allocator).
+A Dynatrace-provided distribution of the [OpenTelemetry Operator Target Allocator](https://github.com/open-telemetry/opentelemetry-operator/tree/main/cmd/otel-allocator).
 
 ## Overview
 
-The Target Allocator (TA) is a component that decouples service discovery and metric collection in Prometheus so they can be scaled independently. It allows OTel Collectors to scrape Prometheus metrics without requiring a full Prometheus installation.
+The Target Allocator (TA) is a component that decouples service discovery and metric collection in Prometheus so they can be scaled independently.
+It allows OpenTelemetry Collectors to scrape Prometheus metrics without requiring a full Prometheus installation.
 
 The TA serves two main functions:
 
@@ -22,6 +23,11 @@ OTel Collectors   -->  scrape assigned Metrics targets
 ```
 
 The Prometheus Receiver config in each Collector is overridden with an `http_sd_config` pointing to the TA, which handles the load-balancing and sharding of targets.
+
+## Documentation
+
+Refer to the Dynatrace documentation on how to [Scrape Prometheus metrics with the OpenTelemetry Collector](https://docs.dynatrace.com/docs/shortlink/otel-collector-cases-prometheus-general)
+to learn about the architecture, deployment and configuration, as well as for monitoring and troubleshooting instructions.
 
 ## Installation
 
