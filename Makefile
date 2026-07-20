@@ -4,7 +4,7 @@ include ./Makefile.Common
 UPSTREAM_REPO    := https://github.com/open-telemetry/opentelemetry-operator
 
 # renovate: datasource=github-releases depName=open-telemetry/opentelemetry-operator
-UPSTREAM_VERSION := v0.155.0
+UPSTREAM_VERSION := v0.156.0
 
 # Downstream version — bump this manually when cutting a release
 VERSION := v0.3.0
