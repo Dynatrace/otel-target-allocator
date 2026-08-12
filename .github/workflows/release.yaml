@@ -117,6 +117,15 @@ jobs:
         with:
           subject-checksums: ./dist/digests.txt
 
+      - name: Send release notification
+        uses: Dynatrace/dynatrace-otel-collector/.github/actions/send-release-notification@main
+        with:
+          component: otel-target-allocator
+          ghcr_prefix: ghcr.io/dynatrace/otel-target-allocator/target-allocator
+          role_arn: ${{ secrets.RELEASE_INGESTION_ROLE_ARN }}
+          hmac_secret: ${{ secrets.RELEASE_INGESTION_HMAC_SECRET }}
+          api_url: ${{ vars.RELEASE_INGESTION_API_URL }}
+
   notify-slack:
     runs-on: ubuntu-24.04
     needs: [release]
