@@ -97,12 +97,20 @@ jobs:
         with:
           registry-type: public
 
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          ./scripts/extract-changelog.sh "${TAG_NAME}" > "${RUNNER_TEMP}/release-notes.md"
+          echo "----- release notes -----"
+          cat "${RUNNER_TEMP}/release-notes.md"
+
       - name: Create release for version tag
         uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
         with:
           distribution: goreleaser-pro
           version: ${{ env.GORELEASER_PRO_VERSION }}
-          args: release --clean
+          args: release --clean --release-notes=${{ runner.temp }}/release-notes.md
         env:
           GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
