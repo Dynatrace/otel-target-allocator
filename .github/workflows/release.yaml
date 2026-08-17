@@ -118,7 +118,7 @@ jobs:
           subject-checksums: ./dist/digests.txt
 
       - name: Send release notification
-        uses: Dynatrace/dynatrace-otel-collector/.github/actions/send-release-notification@main
+        uses: Dynatrace/dynatrace-otel-collector/.github/actions/send-release-notification@35da9b20cc2e2227fd1479c1c70329468f5d9410 # main
         with:
           component: otel-target-allocator
           ghcr_prefix: ghcr.io/dynatrace/otel-target-allocator/target-allocator
