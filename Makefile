@@ -113,3 +113,9 @@ new-patch: ## Generate a numbered patch file from the last commit in build/ (ren
 	git -C $(BUILD_DIR) format-patch HEAD~1 --stdout > "$$output"; \
 	echo "==> Generated $$output"; \
 	echo "    Rename it to describe your change, e.g. $$next_seq-fix-my-bug.patch"
+
+##@ Release
+
+.PHONY: changelog
+changelog: ## Generate or refresh the CHANGELOG.md entry for the current VERSION
+	@VERSION=$(VERSION) UPSTREAM_VERSION=$(UPSTREAM_VERSION) ./scripts/generate-changelog.sh

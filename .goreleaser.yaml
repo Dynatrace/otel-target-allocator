@@ -124,11 +124,8 @@ snapshot:
   version_template: "{{ incpatch .Version }}-next"
 
 changelog:
-  sort: asc
-  filters:
-    exclude:
-      - "^docs:"
-      - "^test:"
+  # Release notes are sourced from CHANGELOG.md via --release-notes, not from git history.
+  disable: true
 
 release:
   draft: true
