@@ -98,7 +98,7 @@ jobs:
           registry-type: public
 
       - name: Create release for version tag
-        uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
+        uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
         with:
           distribution: goreleaser-pro
           version: ${{ env.GORELEASER_PRO_VERSION }}
@@ -142,7 +142,7 @@ jobs:
           path: ./dist
 
       - name: Send release notification
-        uses: Dynatrace/dynatrace-otel-collector/.github/actions/send-release-notification@84b1cdbd7706ccf3dbd0881db4029a2a452c3ef5 # v0.57.0
+        uses: Dynatrace/dynatrace-otel-collector/.github/actions/send-release-notification@532fda3a343a2c47f7ebfa6455cd2abc287fb092 # v0.58.0
         with:
           component: otel-target-allocator
           ghcr_prefix: ghcr.io/dynatrace/otel-target-allocator/target-allocator
