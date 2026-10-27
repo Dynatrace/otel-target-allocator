@@ -74,14 +74,14 @@ jobs:
         run: make patch
 
       - name: Login to GitHub Package Registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to DockerHub Registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -142,7 +142,7 @@ jobs:
           path: ./dist
 
       - name: Send release notification
-        uses: Dynatrace/dynatrace-otel-collector/.github/actions/send-release-notification@532fda3a343a2c47f7ebfa6455cd2abc287fb092 # v0.58.0
+        uses: Dynatrace/dynatrace-otel-collector/.github/actions/send-release-notification@5920bfa6d0fe288b5a61c632debc474c031b445a # v0.58.1
         with:
           component: otel-target-allocator
           ghcr_prefix: ghcr.io/dynatrace/otel-target-allocator/target-allocator
