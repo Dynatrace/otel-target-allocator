@@ -56,6 +56,21 @@ cosign verify \
 Replace `<tag>` with the image tag you want to verify (e.g. `0.1.0`).
 The same command works for ECR (`public.ecr.aws/dynatrace/otel-target-allocator:<tag>`) and Docker Hub (`dynatrace/otel-target-allocator:<tag>`).
 
+### Verifying release archives and checksums
+
+The `checksums.txt` file and each binary archive attached to a GitHub release are signed with the same keyless flow.
+Each artifact has a matching `<artifact>.sigstore.json` bundle. To verify an archive:
+
+```sh
+cosign verify-blob \
+  --bundle "<archive>.tar.gz.sigstore.json" \
+  --certificate-identity-regexp "https://github.com/Dynatrace/otel-target-allocator/.github/workflows/release.yaml@refs/tags/.*" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+  <archive>.tar.gz
+```
+
+Use the same command with `checksums.txt` to verify the checksum file.
+
 [cosign]: https://docs.sigstore.dev/cosign/system_config/installation/
 [Sigstore]: https://www.sigstore.dev/
 
