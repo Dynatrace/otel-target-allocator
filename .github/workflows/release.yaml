@@ -142,7 +142,7 @@ jobs:
           path: ./dist
 
       - name: Send release notification
-        uses: Dynatrace/dynatrace-otel-collector/.github/actions/send-release-notification@153b974f0d3bb7fe8fe26377cac1df53a00f60e4 # v0.59.0
+        uses: Dynatrace/dynatrace-otel-collector/.github/actions/send-release-notification@43c5942dcc540bc1ac29d443f5f9bf98086c5325 # v0.60.0
         with:
           component: otel-target-allocator
           ghcr_prefix: ghcr.io/dynatrace/otel-target-allocator/target-allocator
