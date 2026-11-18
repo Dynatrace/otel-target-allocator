@@ -15,6 +15,8 @@ env:
 jobs:
   snyk:
     name: Check for security vulnerabilities
+    # Snyk tracks main only; a manual run on another branch would overwrite main's snapshot.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-26.04
     steps:
       - name: Checkout
@@ -42,6 +44,39 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: snyk monitor --file=build/go.mod --project-name=otel-target-allocator
+
+  test:
+    name: Test for security vulnerabilities (no upload)
+    # Manual runs on other branches only report locally via `snyk test`;
+    # `snyk monitor` (snyk job) is reserved for main.
+    if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main'
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+          cache: false
+
+      - name: Fetch upstream source
+        run: make setup
+
+      - name: Apply patches
+        run: make patch
+
+      - name: Run Snyk
+        # Findings of all severities (low and above) are reported and fail the job.
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --severity-threshold=low --file=build/go.mod
 
   notify-slack:
     runs-on: ubuntu-26.04
